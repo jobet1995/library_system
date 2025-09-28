@@ -95,6 +95,8 @@ INSTALLED_APPS = [
     'transactions',
     'library_settings',
     'notifications',
+    'report',
+    'events',
 ]
 
 MIDDLEWARE = [

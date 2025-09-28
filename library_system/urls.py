@@ -48,6 +48,12 @@ urlpatterns = [
         
         # Library settings endpoints
         path('settings/', include('library_settings.urls')),
+        
+        # Notifications endpoints
+        path('notifications/', include('notifications.urls')),
+        
+        # Events endpoints
+        path('events/', include('events.urls')),
     ])),
     
     # Admin

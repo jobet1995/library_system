@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from .models import Notification, NotificationBatch
-from users.serializers import UserSerializer
+from accounts.serializers import UserSerializer
 
 
 class NotificationSerializer(serializers.ModelSerializer):
