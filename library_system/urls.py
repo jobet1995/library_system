@@ -28,6 +28,10 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     # API
     path('api/', include([
+        # Inventory API
+        path('inventory/', include('inventory.urls')),
+        # Reviews API
+        path('reviews/', include('reviews.urls')),
         # Redirect /api/ to /api/health/
         path('', RedirectView.as_view(url='/api/health/'), name='api-root'),
         

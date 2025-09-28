@@ -97,6 +97,8 @@ INSTALLED_APPS = [
     'notifications',
     'report',
     'events',
+    'reviews',
+    'inventory',
 ]
 
 MIDDLEWARE = [
