@@ -94,6 +94,7 @@ INSTALLED_APPS = [
     'books',
     'transactions',
     'library_settings',
+    'notifications',
 ]
 
 MIDDLEWARE = [
