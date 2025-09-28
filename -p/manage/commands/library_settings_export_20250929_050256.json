@@ -1,0 +1,133 @@
+{
+  "meta": {
+    "exported_at": "2025-09-29T05:02:56.862850",
+    "version": "1.0"
+  },
+  "branches": [
+    {
+      "name": "Main Branch",
+      "code": "MAIN",
+      "address": "123 Library St, City, Country",
+      "phone": "+1234567890",
+      "email": "info@library.example.com",
+      "opening_hours": null,
+      "is_active": true
+    }
+  ],
+  "policies": [
+    {
+      "name": "Standard Borrowing",
+      "policy_type": "borrowing",
+      "description": "Standard borrowing policy with 2-week loan period",
+      "is_active": true,
+      "created_at": "2025-09-28T20:59:45.815148+00:00",
+      "updated_at": "2025-09-28T20:59:45.815180+00:00"
+    },
+    {
+      "name": "Fines and Fees",
+      "policy_type": "fines",
+      "description": "Policy regarding late returns, lost items, and other fines",
+      "is_active": true,
+      "created_at": "2025-09-28T20:59:45.830976+00:00",
+      "updated_at": "2025-09-28T20:59:45.831006+00:00"
+    },
+    {
+      "name": "Membership Terms",
+      "policy_type": "membership",
+      "description": "Terms and conditions for library membership",
+      "is_active": true,
+      "created_at": "2025-09-28T20:59:45.825947+00:00",
+      "updated_at": "2025-09-28T20:59:45.825977+00:00"
+    },
+    {
+      "name": "Book Reservation",
+      "policy_type": "reservation",
+      "description": "Policy for reserving books that are currently checked out",
+      "is_active": true,
+      "created_at": "2025-09-28T20:59:45.820251+00:00",
+      "updated_at": "2025-09-28T20:59:45.820282+00:00"
+    }
+  ],
+  "fine_rates": [
+    {
+      "name": "Damaged Book",
+      "violation_type": "damaged",
+      "rate": "10.00",
+      "rate_type": "fixed",
+      "max_fine": null,
+      "is_active": true,
+      "created_at": "2025-09-28T21:00:47.600673+00:00",
+      "updated_at": "2025-09-28T21:00:47.600702+00:00"
+    },
+    {
+      "name": "Lost Book",
+      "violation_type": "lost",
+      "rate": "25.00",
+      "rate_type": "fixed",
+      "max_fine": null,
+      "is_active": true,
+      "created_at": "2025-09-28T21:00:47.605631+00:00",
+      "updated_at": "2025-09-28T21:00:47.605660+00:00"
+    },
+    {
+      "name": "Overdue Book",
+      "violation_type": "overdue",
+      "rate": "0.50",
+      "rate_type": "daily",
+      "max_fine": "25.00",
+      "is_active": true,
+      "created_at": "2025-09-28T21:00:47.594880+00:00",
+      "updated_at": "2025-09-28T21:00:47.594915+00:00"
+    }
+  ],
+  "notification_templates": [
+    {
+      "name": "Checkout Confirmation",
+      "notification_type": "checkout",
+      "subject": "Book Checkout Confirmation",
+      "body": "Hello {{user.first_name}},\n\nYou have successfully checked out the following book(s):\n{% for book in books %}- {{book.title}} (Due: {{book.due_date|date:\"F j, Y\"}})\n{% endfor %}\n\nThank you for using our library!",
+      "is_active": true,
+      "created_at": "2025-09-28T21:00:47.617069+00:00",
+      "updated_at": "2025-09-28T21:00:47.617100+00:00"
+    },
+    {
+      "name": "Due Date Reminder",
+      "notification_type": "due_soon",
+      "subject": "Upcoming Book Due Date",
+      "body": "Hello {{user.first_name}},\n\nThe following book(s) are due soon:\n{% for book in books %}- {{book.title}} (Due: {{book.due_date|date:\"F j, Y\"}})\n{% endfor %}\n\nPlease return or renew them to avoid late fees.",
+      "is_active": true,
+      "created_at": "2025-09-28T21:00:47.623358+00:00",
+      "updated_at": "2025-09-28T21:00:47.623389+00:00"
+    },
+    {
+      "name": "Overdue Notice",
+      "notification_type": "overdue",
+      "subject": "Overdue Book Notice",
+      "body": "Hello {{user.first_name}},\n\nThe following book(s) are overdue:\n{% for book in books %}- {{book.title}} (Due: {{book.due_date|date:\"F j, Y\"}})\n{% endfor %}\n\nPlease return them as soon as possible to avoid additional fines.",
+      "is_active": true,
+      "created_at": "2025-09-28T21:00:47.628871+00:00",
+      "updated_at": "2025-09-28T21:00:47.628903+00:00"
+    },
+    {
+      "name": "Welcome Email",
+      "notification_type": "welcome",
+      "subject": "Welcome to Our Library!",
+      "body": "Hello {{user.first_name}},\n\nWelcome to our library! We're excited to have you as a member.\n\nYour membership details:\n- Member ID: {{user.member_id}}\n- Membership Type: {{user.membership_type}}\n- Expiration Date: {{user.membership_expiry|date:\"F j, Y\"}}\n\nIf you have any questions, please don't hesitate to contact us.",
+      "is_active": true,
+      "created_at": "2025-09-28T21:00:47.633771+00:00",
+      "updated_at": "2025-09-28T21:00:47.633801+00:00"
+    }
+  ],
+  "settings": [
+    {
+      "branch_name": "Main Branch",
+      "branch_address": "123 Library St, City, Country",
+      "max_borrow_days": 14,
+      "fine_per_day": "0.50",
+      "max_renewals": 2,
+      "allow_reservation": true,
+      "created_at": "2025-09-28T21:01:23.172250+00:00",
+      "updated_at": "2025-09-28T21:01:23.172285+00:00"
+    }
+  ]
+}

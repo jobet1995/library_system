@@ -45,13 +45,16 @@ urlpatterns = [
         
         # Books endpoints
         path('books/', include('books.urls')),
+        
+        # Library settings endpoints
+        path('settings/', include('library_settings.urls')),
     ])),
     
     # Admin
     path('admin/', admin.site.urls),
     
-    # Redirect root to API health check
-    path('', RedirectView.as_view(url='/api/health/')),
+    # Redirect root to admin login
+    path('', RedirectView.as_view(url='/admin/login/?next=/admin/')),
 ]
 
 # Serve media files in development

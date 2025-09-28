@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     'api',
     'books',
     'transactions',
+    'library_settings',
 ]
 
 MIDDLEWARE = [
