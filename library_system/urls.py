@@ -16,8 +16,41 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views.generic import RedirectView
+from rest_framework_simplejwt.views import (
+    TokenRefreshView,
+    TokenVerifyView
+)
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    # API
+    path('api/', include([
+        # Redirect /api/ to /api/health/
+        path('', RedirectView.as_view(url='/api/health/'), name='api-root'),
+        
+        # Health check endpoint
+        path('health/', include('api.urls')),
+        
+        # Authentication endpoints
+        path('auth/', include([
+            # Include accounts URLs (register, profile, etc.)
+            path('', include('accounts.urls')),
+            # JWT token endpoints
+            path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+            path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+        ])),
+    ])),
+    
+    # Admin
+    path('admin/', admin.site.urls),
+    
+    # Redirect root to API health check
+    path('', RedirectView.as_view(url='/api/health/')),
 ]
+
+# Serve media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
