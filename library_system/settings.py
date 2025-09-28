@@ -47,6 +47,17 @@ REST_FRAMEWORK = {
 # JWT Settings
 from datetime import timedelta
 
+# Library settings
+LIBRARY_SETTINGS = {
+    'DEFAULT_LOAN_PERIOD_DAYS': 14,  # Default loan period in days
+    'MAX_RENEWALS': 2,  # Maximum number of times a book can be renewed
+    'RENEWAL_PERIOD_DAYS': 7,  # Loan period extension when renewed
+    'DAILY_FINE_AMOUNT': 0.50,  # Fine amount per day for late returns
+    'MAX_FINE_AMOUNT': 20.00,  # Maximum fine amount per book
+    'GRACE_PERIOD_DAYS': 3,  # Grace period before fines start accruing
+}
+
+# JWT Settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -81,6 +92,7 @@ INSTALLED_APPS = [
     'accounts',
     'api',
     'books',
+    'transactions',
 ]
 
 MIDDLEWARE = [

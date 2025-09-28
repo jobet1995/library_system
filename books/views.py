@@ -77,13 +77,31 @@ class PublisherViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows publishers to be viewed or edited.
     """
-    queryset = Publisher.objects.all()
     serializer_class = PublisherSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['name', 'email']
     ordering_fields = ['name', 'book_count', 'created_at']
     ordering = ['name']
+    
+    def get_queryset(self):
+        """
+        Return a queryset of all publishers with annotated book count,
+        optionally filtered by minimum book count.
+        """
+        queryset = Publisher.objects.annotate(
+            book_count=Count('books', distinct=True)
+        )
+        
+        # Apply filtering by minimum book count if requested
+        min_books = self.request.query_params.get('min_books')
+        if min_books is not None:
+            try:
+                queryset = queryset.filter(book_count__gte=int(min_books))
+            except (ValueError, TypeError):
+                pass
+                
+        return queryset
 
     def get_permissions(self):
         """
@@ -94,19 +112,6 @@ class PublisherViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]
-
-    def get_queryset(self):
-        """
-        Optionally filter by book count.
-        """
-        queryset = super().get_queryset()
-        min_books = self.request.query_params.get('min_books')
-        if min_books is not None:
-            try:
-                queryset = queryset.annotate(book_count=Count('books')).filter(book_count__gte=int(min_books))
-            except (ValueError, TypeError):
-                pass
-        return queryset
 
 
 class BookViewSet(viewsets.ModelViewSet):
