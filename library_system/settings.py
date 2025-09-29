@@ -99,6 +99,7 @@ INSTALLED_APPS = [
     'events',
     'reviews',
     'inventory',
+    'library_system.library',  # For management commands
 ]
 
 MIDDLEWARE = [
