@@ -31,7 +31,11 @@ env:
 jobs:
   test:
     name: Run Tests
-    if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'stagingTest'
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/develop' || contains(github.ref, 'stagingTest'))) ||
+      (github.event_name == 'pull_request' && 
+       (github.event.pull_request.base.ref == 'stagingTest' || 
+        github.event.pull_request.base.ref == 'develop'))
     runs-on: ubuntu-latest
     
     services:
@@ -72,12 +76,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest pytest-django pytest-cov
+      - name: Create test database
+        env:
+          PGPASSWORD: ${{ env.DB_PASSWORD }}
+        run: |
+          psql -h ${{ env.DB_HOST }} -U ${{ env.DB_USER }} -c "CREATE DATABASE test_${{ env.DB_NAME }};"
+          psql -h ${{ env.DB_HOST }} -U ${{ env.DB_USER }} -d test_${{ env.DB_NAME }} -c "GRANT ALL PRIVILEGES ON DATABASE test_${{ env.DB_NAME }} TO ${{ env.DB_USER }};"
+      
       - name: Run tests
         env:
           DJANGO_SETTINGS_MODULE: library_system.settings_test
+          PYTHONPATH: ${{ github.workspace }}
         run: |
-          python manage.py test --noinput
-          pytest --cov=.
+          # Run Django tests
+          python manage.py check
+          python manage.py makemigrations --check --dry-run
+          python manage.py test accounts books events inventory library_settings notifications report reviews transactions --noinput -v 2
+          
+          # Run pytest with coverage
+          python -m pytest accounts/ books/ events/ inventory/ library_settings/ notifications/ report/ reviews/ transactions/ --cov=. --cov-report=xml --cov-report=term
 
   build-and-push:
     name: Build and Push Docker Image
