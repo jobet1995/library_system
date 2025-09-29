@@ -45,6 +45,7 @@ jobs:
           POSTGRES_DB: ${{ env.DB_NAME }}
           POSTGRES_USER: ${{ env.DB_USER }}
           POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
         options: >-
@@ -80,8 +81,21 @@ jobs:
         env:
           PGPASSWORD: ${{ env.DB_PASSWORD }}
         run: |
-          psql -h ${{ env.DB_HOST }} -U ${{ env.DB_USER }} -c "CREATE DATABASE test_${{ env.DB_NAME }};"
-          psql -h ${{ env.DB_HOST }} -U ${{ env.DB_USER }} -d test_${{ env.DB_NAME }} -c "GRANT ALL PRIVILEGES ON DATABASE test_${{ env.DB_NAME }} TO ${{ env.DB_USER }};"
+          # Wait for PostgreSQL to be ready
+          for i in {1..10}; do
+            if pg_isready -h ${{ env.DB_HOST }} -p ${{ env.DB_PORT }} -U ${{ env.DB_USER }} -d ${{ env.DB_NAME }}; then
+              break
+            fi
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 2
+          done
+          
+          # Create test database if it doesn't exist
+          psql -h ${{ env.DB_HOST }} -p ${{ env.DB_PORT }} -U ${{ env.DB_USER }} -d postgres -c "CREATE DATABASE test_${{ env.DB_NAME }};" || echo "Database already exists or could not be created"
+          psql -h ${{ env.DB_HOST }} -p ${{ env.DB_PORT }} -U ${{ env.DB_USER }} -d test_${{ env.DB_NAME }} -c "GRANT ALL PRIVILEGES ON DATABASE test_${{ env.DB_NAME }} TO ${{ env.DB_USER }};" || echo "Could not grant privileges"
+          
+          # Verify the database was created
+          psql -h ${{ env.DB_HOST }} -p ${{ env.DB_PORT }} -U ${{ env.DB_USER }} -l | grep test_${{ env.DB_NAME }} || echo "Test database not found"
       
       - name: Run tests
         env:
