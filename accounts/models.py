@@ -1,7 +1,45 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 import uuid
+
+
+class CustomUserManager(BaseUserManager):
+    """Custom user model manager where email is the unique identifier"""
+    
+    def _create_user(self, username, email, password, **extra_fields):
+        """Create and save a user with the given username, email, and password."""
+        if not username:
+            raise ValueError('The username must be set')
+        if not email:
+            raise ValueError('The email must be set')
+        
+        email = self.normalize_email(email)
+        user = self.model(username=username, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+    
+    def create_user(self, username, email, password=None, **extra_fields):
+        """Create and save a regular user with the given email and password."""
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        extra_fields.setdefault('user_type', 'student')
+        return self._create_user(username, email, password, **extra_fields)
+    
+    def create_superuser(self, username, email, password, **extra_fields):
+        """Create and save a SuperUser with the given email and password."""
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('user_type', 'admin')
+        
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+        
+        return self._create_user(username, email, password, **extra_fields)
 
 
 class UserType(models.TextChoices):
@@ -23,6 +61,7 @@ class CustomUser(AbstractUser):
     Custom User model that extends Django's AbstractUser.
     Adds additional fields for user profiles in the library system.
     """
+    objects = CustomUserManager()
     user_type = models.CharField(
         _('user type'),
         max_length=10,
@@ -115,9 +154,8 @@ class CustomUser(AbstractUser):
         return self.user_type == UserType.STAFF
 
     def is_student(self):
-        """Check if the user is a student."""
         return self.user_type == UserType.STUDENT
-        
     def is_admin(self):
         """Check if the user is an admin."""
         return self.user_type == UserType.ADMIN
+        

@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
+from .models import UserType
 from .serializers import (
     UserSerializer, 
     RegisterSerializer, 
@@ -60,8 +61,13 @@ class RegisterView(generics.CreateAPIView):
             )
             
         headers = self.get_success_headers(serializer.data)
+        user = User.objects.get(username=serializer.data['username'])
+        user_data = UserSerializer(user).data
         return Response(
-            {'message': 'User registered successfully'},
+            {
+                'message': 'User registered successfully',
+                'user': user_data
+            },
             status=status.HTTP_201_CREATED,
             headers=headers
         )
@@ -182,6 +188,16 @@ class UserDetailView(generics.ListCreateAPIView, generics.RetrieveUpdateDestroyA
                 status=status.HTTP_400_BAD_REQUEST
             )
     
+    def perform_update(self, serializer):
+        # Save the user instance
+        user = serializer.save()
+        
+        # Update password if provided
+        password = self.request.data.get('password')
+        if password:
+            user.set_password(password)
+            user.save()
+    
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -191,21 +207,43 @@ class UserDetailView(generics.ListCreateAPIView, generics.RetrieveUpdateDestroyA
                 status=status.HTTP_404_NOT_FOUND
             )
             
+        # Get the current user type before update
+        current_user_type = instance.user_type
+        
         serializer = self.get_serializer(
             instance, 
-            data=request.data, 
+            data=request.data,
             partial=partial
         )
         
         if not serializer.is_valid():
             return Response(
-                serializer.errors, 
+                serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
             
         try:
+            # Check if user_type is being updated and the new value is valid
+            new_user_type = request.data.get('user_type')
+            if new_user_type and new_user_type != current_user_type:
+                # Ensure the new user_type is valid
+                valid_user_types = dict(UserType.choices).keys()
+                if new_user_type not in valid_user_types:
+                    return Response(
+                        {'error': f'Invalid user_type. Must be one of: {", ".join(valid_user_types)}'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                
+                # Update the user_type directly on the instance
+                instance.user_type = new_user_type
+                instance.save(update_fields=['user_type'])
+            
             self.perform_update(serializer)
+            
+            # Refresh the serializer to get the updated data
+            serializer = self.get_serializer(instance)
             return Response(serializer.data, status=status.HTTP_200_OK)
+            
         except Exception as e:
             return Response(
                 {'error': str(e)},
